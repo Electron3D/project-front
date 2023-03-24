@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1>RPG admin panel</h1>
+<h3>Accounts list:</h3>
 <p>Count per page:
 <select id="elementsOnPage">
     <option value="3">3</option>
@@ -29,16 +30,11 @@ Pages: <div id="buttonsBlock"></div>
         $('#buttonsBlock').empty();
         $('#myTable').empty();
         pageSize = $('#elementsOnPage').val();
+        pageNumber = 0;
         drawTable();
         createPagesSelector()
     });
-    /*$.each($('#buttonsBlock').children(), function (index, value) {
-        $(index).click(function () {
-            $('#myTable').empty();
-            pageNumber = index;
-            drawTable();
-        })
-    });*/
+
     function drawHeader() {
         $('#myTable').append('<tr>' +
             '<td>#</td>' +
@@ -55,13 +51,17 @@ Pages: <div id="buttonsBlock"></div>
         $.get( "/rest/players", {pageNumber, pageSize}, function( data ) {
             drawHeader();
             $.each(data, function (index, value){
-                var date = new Date(value.birthday);
-                var day = date.getDate();
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-                var formattedDate = month + '/' + day + '/' + year;
+                let date = new Date(value.birthday);
+                let day = date.getDate();
+                let month = date.getMonth() + 1;
+                let year = date.getFullYear();
+                let formattedDate = month + '/' + day + '/' + year;
+                let number = index + 1;
+                if (pageNumber > 0) {
+                    number = pageNumber * pageSize + index + 1;
+                }
                 $('#myTable').append('<tr>' +
-                    '<td>'+ (index + 1) + '</td>' +
+                    '<td>'+ number + '</td>' +
                     '<td>' + value.name + '</td>' +
                     '<td>' + value.title + '</td>' +
                     '<td>' + value.race + '</td>' +
@@ -78,9 +78,14 @@ Pages: <div id="buttonsBlock"></div>
             numberOfPages = data / pageSize;
             for (let i = 0; i < numberOfPages; i++) {
                 let currentPageNumber = i + 1;
-                $('#buttonsBlock').append('<button id=%"' + i + '%">' + currentPageNumber + '</button>');
+                $('#buttonsBlock').append('<button value="' + i + '" onclick="changePage(this)">' + currentPageNumber + '</button>');
             }
         });
+    }
+    function changePage(button) {
+        pageNumber = button.value;
+        $('#myTable').empty();
+        drawTable();
     }
 </script>
 </body>
