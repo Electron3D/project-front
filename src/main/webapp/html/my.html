@@ -10,7 +10,8 @@
 <p>Count per page:
 <select id="elementsOnPage">
     <option value="3">3</option>
-    <option value="8">8</option>
+    <option value="6">6</option>
+    <option value="10">10</option>
     <option value="15">15</option>
     <option value="20">20</option>
 </select>
@@ -25,18 +26,13 @@ Pages: <div id="buttonsBlock"></div>
     let numberOfPages = 1;
     let pageNumber = 0;
     createPagesSelector();
-    drawTable();
     $('#elementsOnPage').change(function () {
-        $('#buttonsBlock').empty();
-        $('#myTable').empty();
         pageSize = $('#elementsOnPage').val();
-        pageNumber = 0;
-        drawTable();
         createPagesSelector()
     });
 
     function drawHeader() {
-        $('#myTable').append('<tr>' +
+        $('#myTable').append('<tr id="header">' +
             '<td>#</td>' +
             '<td>Name</td>' +
             '<td>Title</td>' +
@@ -45,22 +41,23 @@ Pages: <div id="buttonsBlock"></div>
             '<td>Level</td>' +
             '<td>Birthday</td>' +
             '<td>Banned</td>' +
-        '</tr>')
+            '<td>Edit</td>' +
+            '<td>Delete</td>' +
+        '</tr>');
+        $('#header')
+            .css({'background-color' : '#ffacac'})
     }
     function drawTable() {
+        drawHeader();
         $.get( "/rest/players", {pageNumber, pageSize}, function( data ) {
-            drawHeader();
             $.each(data, function (index, value){
                 let date = new Date(value.birthday);
                 let day = date.getDate();
                 let month = date.getMonth() + 1;
                 let year = date.getFullYear();
                 let formattedDate = month + '/' + day + '/' + year;
-                let number = index + 1;
-                if (pageNumber > 0) {
-                    number = pageNumber * pageSize + index + 1;
-                }
-                $('#myTable').append('<tr>' +
+                let number = value.id;
+                $('#myTable').append('<tr id="tablebody">' +
                     '<td>'+ number + '</td>' +
                     '<td>' + value.name + '</td>' +
                     '<td>' + value.title + '</td>' +
@@ -69,23 +66,43 @@ Pages: <div id="buttonsBlock"></div>
                     '<td>' + value.level + '</td>' +
                     '<td>' + formattedDate + '</td>' +
                     '<td>' + value.banned + '</td>' +
+                    '<td><button value="' + number + '"onclick="editRow(this)"><img src="/img/edit.png" id="Edit button"></button></td>' +
+                    '<td><button value="' + number + '"onclick="deleteRow(this)"><img src="/img/delete.png" id="Delete button"></button></td>' +
                     '</tr>');
             });
         });
     }
     function createPagesSelector() {
+        $('#buttonsBlock').empty();
         $.get( "/rest/players/count", function (data) {
             numberOfPages = data / pageSize;
             for (let i = 0; i < numberOfPages; i++) {
                 let currentPageNumber = i + 1;
-                $('#buttonsBlock').append('<button value="' + i + '" onclick="changePage(this)">' + currentPageNumber + '</button>');
+                $('#buttonsBlock').append('<button id="' + i + 'PageButton" value="' +
+                    i + '" onclick="changePage(this)">' + currentPageNumber + '</button>');
             }
+            let pageSelector = '#' + pageNumber + 'PageButton';
+            changePage(pageSelector);
         });
     }
     function changePage(button) {
         pageNumber = button.value;
+        alert(button.value);
+        $('#buttonsBlock').children().css({'color' : '#000001'}).css({'font-weight' : '400'});
+        $(button).css({'color' : '#ff2323'}).css({'font-weight' : '700'});
         $('#myTable').empty();
         drawTable();
+    }
+    function editRow(button) {
+
+    }
+    function deleteRow(button) {
+        let id = button.value;
+        $.ajax({
+            url: '/rest/players/' + id,
+            type: 'DELETE'
+        });
+        createPagesSelector();
     }
 </script>
 </body>
