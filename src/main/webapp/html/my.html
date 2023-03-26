@@ -23,7 +23,7 @@ Pages: <div id="buttonsBlock"></div>
 
 <script>
     let pageSize = $('#elementsOnPage').val();
-    let numberOfPages = 1;
+    let numberOfPages = 0;
     let pageNumber = 0;
     createPagesSelector();
     $('#elementsOnPage').change(function () {
@@ -76,18 +76,25 @@ Pages: <div id="buttonsBlock"></div>
         $('#buttonsBlock').empty();
         $.get( "/rest/players/count", function (data) {
             numberOfPages = data / pageSize;
+            if (numberOfPages === 0) {
+                numberOfPages++;
+            }
             for (let i = 0; i < numberOfPages; i++) {
                 let currentPageNumber = i + 1;
                 $('#buttonsBlock').append('<button id="' + i + 'PageButton" value="' +
                     i + '" onclick="changePage(this)">' + currentPageNumber + '</button>');
             }
+            if (pageNumber >= numberOfPages) {
+                pageNumber--;
+            }
             let pageSelector = '#' + pageNumber + 'PageButton';
             changePage(pageSelector);
         });
     }
-    function changePage(button) {
+    function changePage(pageSelector) {
+        let $buttons = $(pageSelector);
+        let button = $buttons[0];
         pageNumber = button.value;
-        alert(button.value);
         $('#buttonsBlock').children().css({'color' : '#000001'}).css({'font-weight' : '400'});
         $(button).css({'color' : '#ff2323'}).css({'font-weight' : '700'});
         $('#myTable').empty();
@@ -101,8 +108,9 @@ Pages: <div id="buttonsBlock"></div>
         $.ajax({
             url: '/rest/players/' + id,
             type: 'DELETE'
-        });
-        createPagesSelector();
+        }).done(function () {
+            createPagesSelector();
+        })
     }
 </script>
 </body>
