@@ -51,24 +51,7 @@ Pages: <div id="buttonsBlock"></div>
         drawHeader();
         $.get( "/rest/players", {pageNumber, pageSize}, function( data ) {
             $.each(data, function (index, value){
-                let date = new Date(value.birthday);
-                let day = date.getDate();
-                let month = date.getMonth() + 1;
-                let year = date.getFullYear();
-                let formattedDate = month + '/' + day + '/' + year;
-                let number = value.id;
-                $('#myTable').append('<tr id="tablebody">' +
-                    '<td>'+ number + '</td>' +
-                    '<td>' + value.name + '</td>' +
-                    '<td>' + value.title + '</td>' +
-                    '<td>' + value.race + '</td>' +
-                    '<td>' + value.profession + '</td>' +
-                    '<td>' + value.level + '</td>' +
-                    '<td>' + formattedDate + '</td>' +
-                    '<td>' + value.banned + '</td>' +
-                    '<td><button value="' + number + '"onclick="editRow(this)"><img src="/img/edit.png" id="Edit button"></button></td>' +
-                    '<td><button value="' + number + '"onclick="deleteRow(this)"><img src="/img/delete.png" id="Delete button"></button></td>' +
-                    '</tr>');
+                createRowInTable(index, value)
             });
         });
     }
@@ -101,7 +84,125 @@ Pages: <div id="buttonsBlock"></div>
         drawTable();
     }
     function editRow(button) {
+        let id = button.value;
+        let editButtonSelector = '#editButton' + id;
+        $(editButtonSelector).hide();
+        let deleteButtonSelector = '#deleteButton' + id;
+        $(deleteButtonSelector).hide();
+        let saveButtonSelector = '#saveButton' + id;
+        $(saveButtonSelector).show();
 
+        let editNameSelector = '#editName' + id;
+        let valName = $(editNameSelector).text();
+        $(editNameSelector).replaceWith('<input type="text" id="editName' + id + '" value="' + valName + '"/>');
+        let editTitleSelector = '#editTitle' + id;
+        let valTitle = $(editTitleSelector).text();
+        $(editTitleSelector).replaceWith('<input type="text" id="editTitle' + id + '" value="' + valTitle + '"/>');
+
+        let editRaceSelector = '#editRace' + id;
+        let valRace = $(editRaceSelector).text();
+        $(editRaceSelector).replaceWith('<select id="editRace' + id + '">' +
+            '<option value="HUMAN">HUMAN</option>' +
+            '<option value="DWARF">DWARF</option> ' +
+            '<option value="ELF">ELF</option> ' +
+            '<option value="GIANT">GIANT</option> ' +
+            '<option value="ORC">ORC</option> ' +
+            '<option value="TROLL">TROLL</option> ' +
+            '<option value="HOBBIT">HOBBIT</option> ' +
+            '</select>');
+        $("select[id='editRace" + id +"'] option[value='" + valRace + "']").attr("selected","selected");
+
+        let editProfessionSelector = '#editProfession' + id;
+        let valProfession = $(editProfessionSelector).text();
+        $(editProfessionSelector).replaceWith('<select id="editProfession' + id + '">' +
+            '<option value="WARRIOR">WARRIOR</option>' +
+            '<option value="ROGUE">ROGUE</option> ' +
+            '<option value="SORCERER">SORCERER</option> ' +
+            '<option value="CLERIC">CLERIC</option> ' +
+            '<option value="PALADIN">PALADIN</option> ' +
+            '<option value="NAZGUL">NAZGUL</option> ' +
+            '<option value="WARLOCK">WARLOCK</option> ' +
+            '<option value="DRUID">DRUID</option> ' +
+            '</select>');
+        $("select[id='editProfession" + id +"'] option[value='" + valProfession + "']").attr("selected","selected");
+
+        let editBannedSelector = '#editBanned' + id;
+        let valBanned = $(editBannedSelector).text();
+        $(editBannedSelector).replaceWith('<select id="editBanned' + id + '">' +
+            '<option value="true">true</option>' +
+            '<option value="false">false</option> ' +
+            '</select>');
+        $("select[id='editBanned" + id +"'] option[value='" + valBanned + "']").attr("selected","selected");
+    }
+    function saveRow(button) {
+        let id = button.value;
+        let saveButtonSelector = '#saveButton' + id;
+        $(saveButtonSelector).hide();
+        let editButtonSelector = '#editButton' + id;
+        $(editButtonSelector).show();
+        let deleteButtonSelector = '#deleteButton' + id;
+        $(deleteButtonSelector).show();
+
+        let editNameSelector = '#editName' + id;
+        let valName = $(editNameSelector).val();
+        /*$(editNameSelector).replaceWith('<div id="editName' + id + '">' + valName + '</div>');*/
+        let editTitleSelector = '#editTitle' + id;
+        let valTitle = $(editTitleSelector).val();
+        /*$(editTitleSelector).replaceWith('<div id="editTitle' + id + '">' + valTitle + '</div>');*/
+        let editRaceSelector = '#editRace' + id;
+        let valRace = $(editRaceSelector).val();
+        /*$(editRaceSelector).replaceWith('<div id="editRace' + id + '">' + valRace + '</div>');*/
+        let editProfessionSelector = '#editProfession' + id;
+        let valProfession = $(editProfessionSelector).val();
+        /*$(editProfessionSelector).replaceWith('<div id="editProfession' + id + '">' + valProfession + '</div>');*/
+        let editBannedSelector = '#editBanned' + id;
+        let valBanned = $(editBannedSelector).val();
+        /*$(editBannedSelector).replaceWith('<div id="editBanned' + id + '">' + valBanned + '</div>');*/
+
+        let url = "/rest/players/" + id;
+        let data = JSON.stringify({
+            "name": valName,
+            "title": valTitle,
+            "race": valRace,
+            "profession": valProfession,
+            "banned": valBanned
+        });
+        $.post(url, data, function (data) {
+            let tableRowSelector = '#tableRow' + id;
+            $(tableRowSelector).empty();
+            createRowInTable(id, data);
+        }, "json");
+    }
+    function createRowInTable(index, value) {
+        let date = new Date(value.birthday);
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        let formattedDate = month + '/' + day + '/' + year;
+        let number = value.id;
+        $('#myTable').append('<tr id="tableRow"' + number + '>' +
+            '<td>'+ number + '</td>' +
+            '<td><div id="editName' + number + '">' + value.name + '</div></td>' +
+            '<td><div id="editTitle' + number + '">' + value.title + '</div></td>' +
+            '<td><div id="editRace' + number + '">' + value.race + '</div></td>' +
+            '<td><div id="editProfession' + number + '">' + value.profession + '</div></td>' +
+            '<td>' + value.level + '</td>' +
+            '<td>' + formattedDate + '</td>' +
+            '<td><div id="editBanned' + number + '">' + value.banned + '</div></td>' +
+            '<td id="editColumn' + number + '">' +
+            '<button id="editButton' + number + '" value="' + number + '" onclick="editRow(this)">' +
+            '<img src="/img/edit.png" id="editButtonImg' + number + '">' +
+            '</button>' +
+            '<button id="saveButton' + number + '" value="' + number + '" onclick="saveRow(this)" hidden="hidden">' +
+            '<img src="/img/save.png" id="saveButton' + number + '">' +
+            '</button>' +
+            '</td>' +
+            '<td id="deleteColumn' + number + '">' +
+            '<button id="deleteButton' + number + '" value="' + number + '" onclick="deleteRow(this)">' +
+            '<img src="/img/delete.png" id="deleteButtonImg' + number + '">' +
+            '</button>' +
+            '</td>' +
+            '</tr>');
     }
     function deleteRow(button) {
         let id = button.value;
