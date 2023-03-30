@@ -20,6 +20,15 @@
 <div id="pagesSelector">
 Pages: <div id="buttonsBlock"></div>
 </div>
+<hr>
+<h1>Create new account:</h1>
+<div id="newUserName">Name: </div>
+<div id="newUserTitle">Title: </div>
+<div id="newUserRace">Race: </div>
+<div id="newUserProfession">Profession: </div>
+<div id="newUserLevel">Level: </div>
+<div id="newUserBirthday">Birthday: </div>
+<div id="newUserBanned">Banned: </div>
 
 <script>
     let pageSize = $('#elementsOnPage').val();
@@ -30,31 +39,15 @@ Pages: <div id="buttonsBlock"></div>
         pageSize = $('#elementsOnPage').val();
         createPagesSelector()
     });
+    $('#newUserName').append('<input type="text" id="newUserNameInput" maxlength="12"/>');
+    $('#newUserTitle').append('<input type="text" id="newUserTitleInput" maxlength="30"/>');
+    $('#newUserRace').append(createRaceSelect('New'));
+    $('#newUserProfession').append(createProfessionSelect('New'));
+    $('#newUserLevel').append('<input type="number" id="newUserLevelInput" maxlength="100"/>');
+    $('#newUserBirthday').append('<input type="date" id="newUserDateInput"/>');
+    $('#newUserBanned').append(createBannedSelect('New'));
+    $("select[id='bannedNew'] option[value='false']").attr("selected","selected");
 
-    function drawHeader() {
-        $('#myTable').append('<tr id="header">' +
-            '<td>#</td>' +
-            '<td>Name</td>' +
-            '<td>Title</td>' +
-            '<td>Race</td>' +
-            '<td>Profession</td>' +
-            '<td>Level</td>' +
-            '<td>Birthday</td>' +
-            '<td>Banned</td>' +
-            '<td>Edit</td>' +
-            '<td>Delete</td>' +
-        '</tr>');
-        $('#header')
-            .css({'background-color' : '#ffacac'})
-    }
-    function drawTable() {
-        drawHeader();
-        $.get( "/rest/players", {pageNumber, pageSize}, function( data ) {
-            $.each(data, function (index, value){
-                createRowInTable(index, value)
-            });
-        });
-    }
     function createPagesSelector() {
         $('#buttonsBlock').empty();
         $.get( "/rest/players/count", function (data) {
@@ -83,112 +76,50 @@ Pages: <div id="buttonsBlock"></div>
         $('#myTable').empty();
         drawTable();
     }
-    function editRow(button) {
-        let id = button.value;
-        let editButtonSelector = '#editButton' + id;
-        $(editButtonSelector).hide();
-        let deleteButtonSelector = '#deleteButton' + id;
-        $(deleteButtonSelector).hide();
-        let saveButtonSelector = '#saveButton' + id;
-        $(saveButtonSelector).show();
-
-        let editNameSelector = '#editName' + id;
-        let valName = $(editNameSelector).text();
-        $(editNameSelector).replaceWith('<input type="text" id="editName' + id + '" value="' + valName + '"/>');
-        let editTitleSelector = '#editTitle' + id;
-        let valTitle = $(editTitleSelector).text();
-        $(editTitleSelector).replaceWith('<input type="text" id="editTitle' + id + '" value="' + valTitle + '"/>');
-
-        let editRaceSelector = '#editRace' + id;
-        let valRace = $(editRaceSelector).text();
-        $(editRaceSelector).replaceWith('<select id="editRace' + id + '">' +
-            '<option value="HUMAN">HUMAN</option>' +
-            '<option value="DWARF">DWARF</option> ' +
-            '<option value="ELF">ELF</option> ' +
-            '<option value="GIANT">GIANT</option> ' +
-            '<option value="ORC">ORC</option> ' +
-            '<option value="TROLL">TROLL</option> ' +
-            '<option value="HOBBIT">HOBBIT</option> ' +
-            '</select>');
-        $("select[id='editRace" + id +"'] option[value='" + valRace + "']").attr("selected","selected");
-
-        let editProfessionSelector = '#editProfession' + id;
-        let valProfession = $(editProfessionSelector).text();
-        $(editProfessionSelector).replaceWith('<select id="editProfession' + id + '">' +
-            '<option value="WARRIOR">WARRIOR</option>' +
-            '<option value="ROGUE">ROGUE</option> ' +
-            '<option value="SORCERER">SORCERER</option> ' +
-            '<option value="CLERIC">CLERIC</option> ' +
-            '<option value="PALADIN">PALADIN</option> ' +
-            '<option value="NAZGUL">NAZGUL</option> ' +
-            '<option value="WARLOCK">WARLOCK</option> ' +
-            '<option value="DRUID">DRUID</option> ' +
-            '</select>');
-        $("select[id='editProfession" + id +"'] option[value='" + valProfession + "']").attr("selected","selected");
-
-        let editBannedSelector = '#editBanned' + id;
-        let valBanned = $(editBannedSelector).text();
-        $(editBannedSelector).replaceWith('<select id="editBanned' + id + '">' +
-            '<option value="true">true</option>' +
-            '<option value="false">false</option> ' +
-            '</select>');
-        $("select[id='editBanned" + id +"'] option[value='" + valBanned + "']").attr("selected","selected");
-    }
-    function saveRow(button) {
-        let id = button.value;
-        let saveButtonSelector = '#saveButton' + id;
-        $(saveButtonSelector).hide();
-        let editButtonSelector = '#editButton' + id;
-        $(editButtonSelector).show();
-        let deleteButtonSelector = '#deleteButton' + id;
-        $(deleteButtonSelector).show();
-
-        let editNameSelector = '#editName' + id;
-        let valName = $(editNameSelector).val();
-        /*$(editNameSelector).replaceWith('<div id="editName' + id + '">' + valName + '</div>');*/
-        let editTitleSelector = '#editTitle' + id;
-        let valTitle = $(editTitleSelector).val();
-        /*$(editTitleSelector).replaceWith('<div id="editTitle' + id + '">' + valTitle + '</div>');*/
-        let editRaceSelector = '#editRace' + id;
-        let valRace = $(editRaceSelector).val();
-        /*$(editRaceSelector).replaceWith('<div id="editRace' + id + '">' + valRace + '</div>');*/
-        let editProfessionSelector = '#editProfession' + id;
-        let valProfession = $(editProfessionSelector).val();
-        /*$(editProfessionSelector).replaceWith('<div id="editProfession' + id + '">' + valProfession + '</div>');*/
-        let editBannedSelector = '#editBanned' + id;
-        let valBanned = $(editBannedSelector).val();
-        /*$(editBannedSelector).replaceWith('<div id="editBanned' + id + '">' + valBanned + '</div>');*/
-
-        let url = "/rest/players/" + id;
-        let data = JSON.stringify({
-            "name": valName,
-            "title": valTitle,
-            "race": valRace,
-            "profession": valProfession,
-            "banned": valBanned
+    function drawTable() {
+        drawHeader();
+        $.get( "/rest/players", {pageNumber, pageSize}, function( data ) {
+            $.each(data, function (index, value) {
+                let id = value.id;
+                $('#myTable').append('<tr id="tableRow' + id + '"></tr>');
+                createRowInTable(id, value)
+            });
         });
-        $.post(url, data, function (data) {
-            let tableRowSelector = '#tableRow' + id;
-            $(tableRowSelector).empty();
-            createRowInTable(id, data);
-        }, "json");
     }
-    function createRowInTable(index, value) {
+    function drawHeader() {
+        $('#myTable').append('<tr id="header">' +
+            '<td>#</td>' +
+            '<td>Name</td>' +
+            '<td>Title</td>' +
+            '<td>Race</td>' +
+            '<td>Profession</td>' +
+            '<td>Level</td>' +
+            '<td>Birthday</td>' +
+            '<td>Banned</td>' +
+            '<td>Edit</td>' +
+            '<td>Delete</td>' +
+            '</tr>');
+        $('#header')
+            .css({'background-color' : '#ffacac'})
+    }
+    function createRowInTable(id, value) {
         let date = new Date(value.birthday);
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
         let formattedDate = month + '/' + day + '/' + year;
-        let number = value.id;
-        $('#myTable').append('<tr id="tableRow"' + number + '>' +
+        let number = id;
+        let tableRowSelector = '#tableRow' + id;
+
+        $(tableRowSelector).append(
             '<td>'+ number + '</td>' +
-            '<td><div id="editName' + number + '">' + value.name + '</div></td>' +
-            '<td><div id="editTitle' + number + '">' + value.title + '</div></td>' +
-            '<td><div id="editRace' + number + '">' + value.race + '</div></td>' +
-            '<td><div id="editProfession' + number + '">' + value.profession + '</div></td>' +
+            '<td><div id="name' + number + '">' + value.name + '</div></td>' +
+            '<td><div id="title' + number + '">' + value.title + '</div></td>' +
+            '<td><div id="race' + number + '">' + value.race + '</div></td>' +
+            '<td><div id="profession' + number + '">' + value.profession + '</div></td>' +
             '<td>' + value.level + '</td>' +
             '<td>' + formattedDate + '</td>' +
-            '<td><div id="editBanned' + number + '">' + value.banned + '</div></td>' +
+            '<td><div id="banned' + number + '">' + value.banned + '</div></td>' +
             '<td id="editColumn' + number + '">' +
             '<button id="editButton' + number + '" value="' + number + '" onclick="editRow(this)">' +
             '<img src="/img/edit.png" id="editButtonImg' + number + '">' +
@@ -201,8 +132,90 @@ Pages: <div id="buttonsBlock"></div>
             '<button id="deleteButton' + number + '" value="' + number + '" onclick="deleteRow(this)">' +
             '<img src="/img/delete.png" id="deleteButtonImg' + number + '">' +
             '</button>' +
-            '</td>' +
-            '</tr>');
+            '</td>');
+    }
+    function editRow(button) {
+        let id = button.value;
+        let editButtonSelector = '#editButton' + id;
+        $(editButtonSelector).hide();
+        let deleteButtonSelector = '#deleteButton' + id;
+        $(deleteButtonSelector).hide();
+        let saveButtonSelector = '#saveButton' + id;
+        $(saveButtonSelector).show();
+
+        let editNameSelector = '#name' + id;
+        let valName = $(editNameSelector).text();
+        $(editNameSelector).replaceWith('<input type="text" id="name' + id + '" value="' + valName + '"/>');
+        let editTitleSelector = '#title' + id;
+        let valTitle = $(editTitleSelector).text();
+        $(editTitleSelector).replaceWith('<input type="text" id="title' + id + '" value="' + valTitle + '"/>');
+
+        let editRaceSelector = '#race' + id;
+        let valRace = $(editRaceSelector).text();
+        $(editRaceSelector).replaceWith(createRaceSelect(id));
+        $("select[id='race" + id +"'] option[value='" + valRace + "']").attr("selected","selected");
+
+        let editProfessionSelector = '#profession' + id;
+        let valProfession = $(editProfessionSelector).text();
+        $(editProfessionSelector).replaceWith(createProfessionSelect(id));
+        $("select[id='profession" + id +"'] option[value='" + valProfession + "']").attr("selected","selected");
+
+        let editBannedSelector = '#banned' + id;
+        let valBanned = $(editBannedSelector).text();
+        $(editBannedSelector).replaceWith(createBannedSelect(id));
+        $("select[id='banned" + id +"'] option[value='" + valBanned + "']").attr("selected","selected");
+    }
+    function saveRow(button) {
+        let id = button.value;
+        let saveButtonSelector = '#saveButton' + id;
+        $(saveButtonSelector).hide();
+        let editButtonSelector = '#editButton' + id;
+        $(editButtonSelector).show();
+        let deleteButtonSelector = '#deleteButton' + id;
+        $(deleteButtonSelector).show();
+
+        let editNameSelector = '#name' + id;
+        let valName = $(editNameSelector).val();
+        let editTitleSelector = '#title' + id;
+        let valTitle = $(editTitleSelector).val();
+        let editRaceSelector = '#race' + id;
+        let valRace = $(editRaceSelector).val();
+        let editProfessionSelector = '#profession' + id;
+        let valProfession = $(editProfessionSelector).val();
+        let editBannedSelector = '#banned' + id;
+        let valBanned = $(editBannedSelector).val();
+
+        let url = "/rest/players/" + id;
+        let data = JSON.stringify({
+            "name": valName,
+            "title": valTitle,
+            "race": valRace,
+            "profession": valProfession,
+            "banned": valBanned
+        });
+        /*$.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            async: false,
+            data: data,
+            success: function (response) {
+                let tableRowSelector = '#tableRow' + id;
+                $(tableRowSelector).children().remove();
+                createRowInTable(id, response);
+            }
+        });*/
+        $.post({
+            url: url,
+            data: data,
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8'
+        }).done(function (response) {
+            let tableRowSelector = '#tableRow' + id;
+            $(tableRowSelector).children().remove();
+            createRowInTable(id, response);
+        });
     }
     function deleteRow(button) {
         let id = button.value;
@@ -212,6 +225,35 @@ Pages: <div id="buttonsBlock"></div>
         }).done(function () {
             createPagesSelector();
         })
+    }
+    function createRaceSelect(id) {
+        return '<select id="race' + id + '">' +
+            '<option value="HUMAN">HUMAN</option>' +
+            '<option value="DWARF">DWARF</option> ' +
+            '<option value="ELF">ELF</option> ' +
+            '<option value="GIANT">GIANT</option> ' +
+            '<option value="ORC">ORC</option> ' +
+            '<option value="TROLL">TROLL</option> ' +
+            '<option value="HOBBIT">HOBBIT</option> ' +
+            '</select>'
+    }
+    function createProfessionSelect(id) {
+        return '<select id="profession' + id + '">' +
+            '<option value="WARRIOR">WARRIOR</option>' +
+            '<option value="ROGUE">ROGUE</option> ' +
+            '<option value="SORCERER">SORCERER</option> ' +
+            '<option value="CLERIC">CLERIC</option> ' +
+            '<option value="PALADIN">PALADIN</option> ' +
+            '<option value="NAZGUL">NAZGUL</option> ' +
+            '<option value="WARLOCK">WARLOCK</option> ' +
+            '<option value="DRUID">DRUID</option> ' +
+            '</select>'
+    }
+    function createBannedSelect(id) {
+        return '<select id="banned' + id + '">' +
+            '<option value="true">true</option>' +
+            '<option value="false">false</option> ' +
+            '</select>'
     }
 </script>
 </body>

@@ -5,3 +5,9 @@ table {
 th, td {
     border: 1px solid grey;
 }
+hr {
+    border: none; /* Убираем границу */
+    background-color: red; /* Цвет линии */
+    color: red; /* Цвет линии для IE6-7 */
+    height: 3px; /* Толщина линии */
+}
