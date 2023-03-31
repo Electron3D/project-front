@@ -29,13 +29,17 @@ Pages: <div id="buttonsBlock"></div>
 <div id="newUserLevel">Level: </div>
 <div id="newUserBirthday">Birthday: </div>
 <div id="newUserBanned">Banned: </div>
+<button id="saveNewUserButton" onclick="saveNewRow()">
+    <img src="/img/save.png" id="saveButtonImg">
+</button>
 
 <script>
-    let pageSize = $('#elementsOnPage').val();
+    let elementsOnPage =$('#elementsOnPage');
+    let pageSize = elementsOnPage.val();
     let numberOfPages = 0;
     let pageNumber = 0;
     createPagesSelector();
-    $('#elementsOnPage').change(function () {
+    elementsOnPage.change(function () {
         pageSize = $('#elementsOnPage').val();
         createPagesSelector()
     });
@@ -121,21 +125,20 @@ Pages: <div id="buttonsBlock"></div>
             '<td>' + formattedDate + '</td>' +
             '<td><div id="banned' + number + '">' + value.banned + '</div></td>' +
             '<td id="editColumn' + number + '">' +
-            '<button id="editButton' + number + '" value="' + number + '" onclick="editRow(this)">' +
+            '<button id="editButton' + number + '" value="' + number + '" onclick="editRow(this.value)">' +
             '<img src="/img/edit.png" id="editButtonImg' + number + '">' +
             '</button>' +
-            '<button id="saveButton' + number + '" value="' + number + '" onclick="saveRow(this)" hidden="hidden">' +
+            '<button id="saveButton' + number + '" value="' + number + '" onclick="saveRow(this.value)" hidden="hidden">' +
             '<img src="/img/save.png" id="saveButton' + number + '">' +
             '</button>' +
             '</td>' +
             '<td id="deleteColumn' + number + '">' +
-            '<button id="deleteButton' + number + '" value="' + number + '" onclick="deleteRow(this)">' +
+            '<button id="deleteButton' + number + '" value="' + number + '" onclick="deleteRow(this.value)">' +
             '<img src="/img/delete.png" id="deleteButtonImg' + number + '">' +
             '</button>' +
             '</td>');
     }
-    function editRow(button) {
-        let id = button.value;
+    function editRow(id) {
         let editButtonSelector = '#editButton' + id;
         $(editButtonSelector).hide();
         let deleteButtonSelector = '#deleteButton' + id;
@@ -165,8 +168,7 @@ Pages: <div id="buttonsBlock"></div>
         $(editBannedSelector).replaceWith(createBannedSelect(id));
         $("select[id='banned" + id +"'] option[value='" + valBanned + "']").attr("selected","selected");
     }
-    function saveRow(button) {
-        let id = button.value;
+    function saveRow(id) {
         let saveButtonSelector = '#saveButton' + id;
         $(saveButtonSelector).hide();
         let editButtonSelector = '#editButton' + id;
@@ -193,19 +195,6 @@ Pages: <div id="buttonsBlock"></div>
             "profession": valProfession,
             "banned": valBanned
         });
-        /*$.ajax({
-            url: url,
-            type: 'POST',
-            dataType: 'json',
-            contentType: 'application/json;charset=UTF-8',
-            async: false,
-            data: data,
-            success: function (response) {
-                let tableRowSelector = '#tableRow' + id;
-                $(tableRowSelector).children().remove();
-                createRowInTable(id, response);
-            }
-        });*/
         $.post({
             url: url,
             data: data,
@@ -217,8 +206,44 @@ Pages: <div id="buttonsBlock"></div>
             createRowInTable(id, response);
         });
     }
-    function deleteRow(button) {
-        let id = button.value;
+    function saveNewRow() {
+        let newName = $('#newUserNameInput');
+        let newTitle = $('#newUserTitleInput');
+        let newRace = $('#raceNew');
+        let newProfession = $('#professionNew');
+        let dateElem = $('#newUserDateInput');
+        let date = new Date(dateElem.val());
+        let newBirthday = date.getTime();
+        let newBanned = $('#bannedNew');
+        let newLevel = $('#newUserLevelInput');
+
+        let url = "/rest/players";
+        let data = JSON.stringify({
+            "name": newName.val(),
+            "title": newTitle.val(),
+            "race": newRace.val(),
+            "profession": newProfession.val(),
+            "birthday": newBirthday,
+            "banned": newBanned.val(),
+            "level": newLevel.val()
+        });
+        $.post({
+            url: url,
+            data: data,
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8'
+        }).done(function () {
+            createPagesSelector();
+            newName.val("");
+            newTitle.val("");
+            newRace.prop('selectedIndex', 0);
+            newProfession.prop('selectedIndex', 0);
+            newBanned.prop('selectedIndex', 1);
+            dateElem.val("");
+            newLevel.val("");
+        });
+    }
+    function deleteRow(id) {
         $.ajax({
             url: '/rest/players/' + id,
             type: 'DELETE'
